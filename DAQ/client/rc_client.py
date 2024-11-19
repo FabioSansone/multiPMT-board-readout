@@ -17,7 +17,7 @@ def parse_args():
 
 args = parse_args()
 
-PING_INTERVAL = 5 #Ogni quanti secondi viene inviato il messaggio di ping
+PING_INTERVAL = 6 #Ogni quanti secondi viene inviato il messaggio di ping
 PING_TIMEOUT = 10
 
 def client():
