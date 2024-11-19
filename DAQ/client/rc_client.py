@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+#coding=utf-8
+
 import zmq
 import argparse
 import time
@@ -14,12 +17,12 @@ def parse_args():
 
 args = parse_args()
 
-PING_INTERVAL = 2 #Ogni quanti secondi viene inviato il messaggio di ping
-PING_TIMEOUT = 5
+PING_INTERVAL = 5 #Ogni quanti secondi viene inviato il messaggio di ping
+PING_TIMEOUT = 10
 
 def client():
 
-    server_address = "tcp://localhost:8005"
+    server_address = f"tcp://{args.ip}:8005"
     #server_address = f"tcp://{args.ip}:8005"
 
     context = zmq.Context()
@@ -38,7 +41,7 @@ def client():
 
         try:
             if time.time() - last_ping >= PING_INTERVAL:
-                print("Ping signal sent")
+                #print("Ping signal sent")
                 connection_socket.send(b"Ping")
                 last_ping = time.time()
             
@@ -55,7 +58,7 @@ def client():
 
 
             else:
-                print("No response from server. Reconnecting...")
+                #print("No response from server. Reconnecting...")
                 time.sleep(PING_INTERVAL)
                 connection_socket.disconnect(server_address)
                 connection_socket.connect(server_address)
