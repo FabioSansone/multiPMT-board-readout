@@ -193,7 +193,7 @@ class ServerTerminal(cmd2.Cmd):
                 response_data = json.loads(read[1].decode("utf-8"))
 
                 if read[0] == b"RC" and response_data.get("response") == "rc_read":
-                    print(f"The value of the register {args.rc_register_address} is: {response_data.get("result")}")
+                    print(f"The value of the register {args.rc_register_address} is: {response_data.get('result')[1] (response_data.get('result')[0])}")
             
             except json.JSONDecodeError:
                 self.poutput("Failed to decode the response.")
