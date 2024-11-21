@@ -14,7 +14,7 @@ class ServerTerminal(cmd2.Cmd):
 
     "A terminal application to switch and interact with the clients on the MainBoard"
 
-    intro  = "Welcome to the control interface. Type ? or help to list commands."
+    intro  = "Welcome to the control interface of the multiPMT. Type ? or help to list commands."
     prompt = "|Main>"
     client = None
 
@@ -197,6 +197,75 @@ class ServerTerminal(cmd2.Cmd):
             
             except json.JSONDecodeError:
                 self.poutput("Failed to decode the response.")
+
+
+
+
+    rc_write_addr = argparse.ArgumentParser()
+    rc_write_addr.add_argument("rc_write_addr", type=int, help="The address of the register of the Run Control intended to be wrote")
+
+    rc_write_value = argparse.ArgumentParser()
+    rc_write_value.add_argument("rc_write_value", type=int, help="The value intended to be wrote in the Run Control Register specified")
+
+    @cmd2.with_argparser(rc_write_addr)
+    @cmd2.with_argparser(rc_write_value)
+    @cmd2.with_category("RC")
+    def do_write(self, args: argparse.Namespace) -> None:
+        "Function to write user specified values in the Run Control registers"
+
+        if self._check_client("RC"):
+            command_rc_write = {
+
+                "type": "rc_command",
+                "command": "write_address",
+                "address": args.rc_write_addr,
+                "value" : args.rc_write_value
+            }
+
+
+            control_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_rc_write).encode("utf-8")])
+        
+            write = control_socket.recv_multipart()
+
+            try:
+                response = json.loads(write[1].decode("utf-8"))
+                if write[0] == b"RC" and response.get("response") == "rc_write":
+                    print(response.get("result"))
+                    
+            except json.JSONDecodeError:
+                self.poutput("Failed to decode the response.")
+
+
+
+    rc_power_on = argparse.ArgumentParser()
+    rc_power_on.add_argument("channels", type=str, help="Write all to power up all channels or the respectivly channel numbers")
+
+    @cmd2.with_argparser(rc_power_on)
+    @cmd2.with_category("RC")
+    def do_power_on(self, args: argparse.Namespace) -> None:
+        "Function to power on the channels selected"
+
+        if self._check_client("RC"):
+            command_rc_pwr_on = {
+
+                "type": "rc_command",
+                "command": "rc_pwr_on",
+                "channels": args.channels
+
+            }
+
+            control_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_rc_pwr_on).encode("utf-8")])
+
+            power_on = control_socket.recv_multipart()
+
+            try:
+                response_pwr = json.loads(power_on[1].decode("utf-8"))
+                if power_on[0] == b"RC" and power_on.get("response") == "rc_power_on":
+                    print(response_pwr.get("result"))
+                    
+            except json.JSONDecodeError:
+                self.poutput("Failed to decode the response.")
+
 
 
 

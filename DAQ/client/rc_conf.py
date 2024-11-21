@@ -111,7 +111,8 @@ class RC:
             
             else:
                 value = 0
-                for channel in channels:
+                channel_list = [int(x) for x in channels]
+                for channel in channel_list:
                     if self.checkChannelsBoundary(channel):
                         value += 2**(channel - 1)
 

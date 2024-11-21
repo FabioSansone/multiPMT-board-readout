@@ -122,6 +122,45 @@ def handle_commands(socket):
                     }
             send_json(socket, read)
 
+        
+        if command == "write_address":
+            addr = server_command.get("address")
+            value = server_command.get("value")
+            if rc.write(addr, value):
+                write_t = {
+                    "response" : "rc_write",
+                    "result" : f"Successufully wrote the value {value} in register {addr}"
+                }
+                send_json(socket, write_t)
+
+            else:
+                write_f = {
+                    "response" : "rc_write",
+                    "result" : f"It was not possible to write the value {value} in register {addr}"
+                }
+                send_json(socket, write_f)
+
+        if command == "rc_pwr_on":
+            channels = server_command.get("channels")
+            if rc.init_data(channels):
+                pwr_on_t = {
+
+                    "response" : "rc_power_on",
+                    "result" : f"Successufully powered on the channels: {channels}"
+
+                }
+                send_json(socket, pwr_on_t)
+            else:
+                pwr_on_f = {
+
+                    "response" : "rc_power_on",
+                    "result" : f"It was not possible to power on the channels: {channels}"
+
+                }
+                send_json(socket, pwr_on_f)
+
+            
+
 
         
     return True
