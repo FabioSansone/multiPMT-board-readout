@@ -111,14 +111,21 @@ class RC:
             
             else:
                 value = 0
+                valid_channels = []
                 channel_list = [int(x) for x in channels.split(",")]
+
                 for channel in channel_list:
                     if self.checkChannelsBoundary(channel):
+                        valid_channels.append(channel)
                         value += 2**(channel - 1)
 
                     else:
                         print(f"Channel {channel} is out of range. Ignored")
                         pass
+                
+                if not valid_channels:
+                    print("No valid channels provided. Aborting operation")
+                    return False
 
                 if self.write(1, value):
                     self.write(0, value)

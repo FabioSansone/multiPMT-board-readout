@@ -157,7 +157,7 @@ class ServerTerminal(cmd2.Cmd):
                     if response_data.get("result"):
                         print(f"The value of the register {args.rc_register_address} is: {response_data.get('result')[1]} ({response_data.get('result')[0]})")
                     else:
-                        print("Register address outside boundary - min:0 max:maxRegisterAddress_RC}")
+                        print(f"Register address outside boundary - min:0 max:{maxRegisterAddress_RC}")
 
             
             except json.JSONDecodeError:
