@@ -202,14 +202,12 @@ class ServerTerminal(cmd2.Cmd):
 
 
 
-    rc_write_addr = argparse.ArgumentParser()
-    rc_write_addr.add_argument("rc_write_addr", type=int, help="The address of the register of the Run Control intended to be wrote")
+    rc_write = argparse.ArgumentParser()
+    rc_write.add_argument("rc_write_addr", type=int, help="The address of the register of the Run Control intended to be wrote")
+    rc_write.add_argument("rc_write_value", type=int, help="The value intended to be wrote in the Run Control Register specified")
 
-    rc_write_value = argparse.ArgumentParser()
-    rc_write_value.add_argument("rc_write_value", type=int, help="The value intended to be wrote in the Run Control Register specified")
 
-    @cmd2.with_argparser(rc_write_addr)
-    @cmd2.with_argparser(rc_write_value)
+    @cmd2.with_argparser(rc_write)
     @cmd2.with_category("RC")
     def do_write(self, args: argparse.Namespace) -> None:
         "Function to write user specified values in the Run Control registers"
