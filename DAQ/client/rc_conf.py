@@ -103,11 +103,11 @@ class RC:
                 if self.write(1, 127):
                     self.write(0, 127)
                     print("All the channels has been opened in data mode")
-                    return True
+                    return (True, channels)
                 else:
                     print("Could not open all channels in data mode")
                     self.reset()
-                    return False
+                    return (False,None)
             
             else:
                 value = 0
@@ -123,20 +123,23 @@ class RC:
                         print(f"Channel {channel} is out of range. Ignored")
                         pass
                 
+                s = set(valid_channels)
+                not_valid_channels = [x for x in channel_list if x not in s]
+                
                 if not valid_channels:
                     print("No valid channels provided. Aborting operation")
-                    return False
+                    return (False, not_valid_channels)
 
                 if self.write(1, value):
                     self.write(0, value)
                     print(f"The channels {channels} have been opened in data mode")
-                    return True
+                    return (True, valid_channels)
                 
                 else:
                     print("Somethig went wrong opening the channels in data mode")
                     self.reset()
-                    return False
+                    return (False, not_valid_channels)
                 
         except Exception as e:
             print(f"During the initialisation of the Run Control something went wrong : {e}")
-            return False
+            return (False, None)

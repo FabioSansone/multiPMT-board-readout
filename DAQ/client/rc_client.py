@@ -133,15 +133,16 @@ def handle_commands(socket):
                 }
                 send_json(socket, write_f)
 
-                
+
 
         if command == "rc_pwr_on":
             channels = server_command.get("channels")
-            if rc.init_data(channels):
+            result = rc.init_data(channels)
+            if result[0]:
                 pwr_on_t = {
 
                     "response" : "rc_power_on",
-                    "result" : f"Successufully powered on the channels: {channels}"
+                    "result" : f"Successufully powered on the channels: {result[1]}"
 
                 }
                 send_json(socket, pwr_on_t)
@@ -149,7 +150,7 @@ def handle_commands(socket):
                 pwr_on_f = {
 
                     "response" : "rc_power_on",
-                    "result" : f"It was not possible to power on the channels: {channels}"
+                    "result" : f"It was not possible to power on the channels: {result[1]}"
 
                 }
                 send_json(socket, pwr_on_f)
