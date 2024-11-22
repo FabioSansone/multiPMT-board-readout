@@ -9,6 +9,8 @@ context = zmq.Context()
 control_socket = context.socket(zmq.ROUTER)
 control_socket.bind("tcp://*:8005")
 
+maxRegisterAddress_RC = 50
+
 
 class ServerTerminal(cmd2.Cmd):
 
@@ -120,47 +122,6 @@ class ServerTerminal(cmd2.Cmd):
         return super().do_quit(_)
 
 
-
-
-    
-    print_message_rc = argparse.ArgumentParser()
-    print_message_rc.add_argument("message", type=str, help="The message the client has to print")
-    
-    @cmd2.with_argparser(print_message_rc)
-    @cmd2.with_category("RC")
-    def do_print_message(self, args: argparse.Namespace) -> None:
-
-        if self._check_client("RC"):
-            command_print = {
-
-                "type": "rc_config",
-                "command": "print_message",
-                "message": args.message
-
-            }
-
-            control_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_print).encode("utf-8")])
-
-
-    print_message_hv = argparse.ArgumentParser()
-    print_message_hv.add_argument("message", type=str, help="The message the client has to print")
-    
-    @cmd2.with_argparser(print_message_hv)
-    @cmd2.with_category("HV")
-    def do_print_message(self, args: argparse.Namespace) -> None:
-
-        if self._check_client("HV"):
-            command_print = {
-
-                "type": "hv_config",
-                "command": "print_message",
-                "message": args.message
-
-            }
-
-            control_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_print).encode("utf-8")])
-
-
     
 
     
@@ -193,7 +154,11 @@ class ServerTerminal(cmd2.Cmd):
                 response_data = json.loads(read[1].decode("utf-8"))
 
                 if read[0] == b"RC" and response_data.get("response") == "rc_read":
-                    print(f"The value of the register {args.rc_register_address} is: {response_data.get('result')[1] (response_data.get('result')[0])}")
+                    if response_data.get("result"):
+                        print(f"The value of the register {args.rc_register_address} is: {response_data.get('result')[1]} ({response_data.get('result')[0]})")
+                    else:
+                        print(f"Register address outside boundary - min:0 max:{maxRegisterAddress_RC}")
+
             
             except json.JSONDecodeError:
                 self.poutput("Failed to decode the response.")
@@ -201,14 +166,12 @@ class ServerTerminal(cmd2.Cmd):
 
 
 
-    rc_write_addr = argparse.ArgumentParser()
-    rc_write_addr.add_argument("rc_write_addr", type=int, help="The address of the register of the Run Control intended to be wrote")
+    rc_write = argparse.ArgumentParser()
+    rc_write.add_argument("rc_write_addr", type=int, help="The address of the register of the Run Control intended to be wrote")
+    rc_write.add_argument("rc_write_value", type=int, help="The value intended to be wrote in the Run Control Register specified")
 
-    rc_write_value = argparse.ArgumentParser()
-    rc_write_value.add_argument("rc_write_value", type=int, help="The value intended to be wrote in the Run Control Register specified")
 
-    @cmd2.with_argparser(rc_write_addr)
-    @cmd2.with_argparser(rc_write_value)
+    @cmd2.with_argparser(rc_write)
     @cmd2.with_category("RC")
     def do_write(self, args: argparse.Namespace) -> None:
         "Function to write user specified values in the Run Control registers"
@@ -260,7 +223,7 @@ class ServerTerminal(cmd2.Cmd):
 
             try:
                 response_pwr = json.loads(power_on[1].decode("utf-8"))
-                if power_on[0] == b"RC" and power_on.get("response") == "rc_power_on":
+                if power_on[0] == b"RC" and response_pwr.get("response") == "rc_power_on":
                     print(response_pwr.get("result"))
                     
             except json.JSONDecodeError:
