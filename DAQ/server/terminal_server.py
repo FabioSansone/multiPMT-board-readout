@@ -259,7 +259,7 @@ class ServerTerminal(cmd2.Cmd):
 
             try:
                 response_pwr = json.loads(power_on[1].decode("utf-8"))
-                if power_on[0] == b"RC" and power_on.get("response") == "rc_power_on":
+                if power_on[0] == b"RC" and response_pwr.get("response") == "rc_power_on":
                     print(response_pwr.get("result"))
                     
             except json.JSONDecodeError:
