@@ -98,13 +98,6 @@ def handle_commands(socket):
         print("Something went wrong sending the commands to the client")
         return True
 
-    if server_command.get("type") == "rc_config":
-        command = server_command.get("command")
-        if command == "print_message":
-            print(f"The message sent to the client is {server_command.get('message')}")
-
-        else:
-            print(f"Unknown command received: {command}")
 
     elif server_command.get("type") == "clients":
         command_back = server_command.get("command")
@@ -139,6 +132,8 @@ def handle_commands(socket):
                     "result" : f"It was not possible to write the value {value} in register {addr}"
                 }
                 send_json(socket, write_f)
+
+                
 
         if command == "rc_pwr_on":
             channels = server_command.get("channels")

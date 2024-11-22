@@ -42,7 +42,7 @@ class RC:
             value = int.from_bytes(self.regs[self.auto_int(addr)*4:(self.auto_int(addr)*4)+4], byteorder='little')
             return (f'0x{value:08x}', value)
         else:
-            self.perror(f'E: register address outside boundary - min:0 max:{self.maxRegisterAddress}')
+            return None
 
     
     def write(self, addr, value):
@@ -111,7 +111,7 @@ class RC:
             
             else:
                 value = 0
-                channel_list = [int(x) for x in channels]
+                channel_list = [int(x) for x in channels.split(",")]
                 for channel in channel_list:
                     if self.checkChannelsBoundary(channel):
                         value += 2**(channel - 1)

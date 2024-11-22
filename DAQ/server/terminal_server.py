@@ -9,6 +9,8 @@ context = zmq.Context()
 control_socket = context.socket(zmq.ROUTER)
 control_socket.bind("tcp://*:8005")
 
+maxRegisterAddress_RC = 50
+
 
 class ServerTerminal(cmd2.Cmd):
 
@@ -120,47 +122,6 @@ class ServerTerminal(cmd2.Cmd):
         return super().do_quit(_)
 
 
-
-
-    
-    print_message_rc = argparse.ArgumentParser()
-    print_message_rc.add_argument("message", type=str, help="The message the client has to print")
-    
-    @cmd2.with_argparser(print_message_rc)
-    @cmd2.with_category("RC")
-    def do_print_message(self, args: argparse.Namespace) -> None:
-
-        if self._check_client("RC"):
-            command_print = {
-
-                "type": "rc_config",
-                "command": "print_message",
-                "message": args.message
-
-            }
-
-            control_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_print).encode("utf-8")])
-
-
-    print_message_hv = argparse.ArgumentParser()
-    print_message_hv.add_argument("message", type=str, help="The message the client has to print")
-    
-    @cmd2.with_argparser(print_message_hv)
-    @cmd2.with_category("HV")
-    def do_print_message(self, args: argparse.Namespace) -> None:
-
-        if self._check_client("HV"):
-            command_print = {
-
-                "type": "hv_config",
-                "command": "print_message",
-                "message": args.message
-
-            }
-
-            control_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_print).encode("utf-8")])
-
-
     
 
     
@@ -193,7 +154,10 @@ class ServerTerminal(cmd2.Cmd):
                 response_data = json.loads(read[1].decode("utf-8"))
 
                 if read[0] == b"RC" and response_data.get("response") == "rc_read":
-                    print(f"The value of the register {args.rc_register_address} is: {response_data.get('result')[1]} ({response_data.get('result')[0]})")
+                    if response_data.get("result"):
+                        print(f"The value of the register {args.rc_register_address} is: {response_data.get('result')[1]} ({response_data.get('result')[0]})")
+                    else:
+                        print("Register address outside boundary - min:0 max:maxRegisterAddress_RC}")
 
             
             except json.JSONDecodeError:
