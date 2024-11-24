@@ -89,7 +89,13 @@ def handle_commands(socket):
         command_back = server_command.get("command")
         if command_back == "back":
             return False
-        
+    
+    elif server_command.get("type") == "hv_command":
+        command = server_command.get("command")
+
+        if command == "set_init_configuration":
+            port = server_command.get("port")
+            channel = server_command.get("channel")        
 
     
         

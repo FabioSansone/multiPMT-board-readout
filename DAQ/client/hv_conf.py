@@ -171,53 +171,123 @@ class HV():
         statuses = {0: 'UP', 1: 'DOWN', 2: 'RUP', 3: 'RDN', 4: 'TUP', 5: 'TDN', 6: 'TRIP'}
         return statuses.get(statusCode, 'undef')
     
-    def set_hv_init_configuration(self, port ,channel ,voltage_set = 800, threshold_set=100, limit_trip_time=2, limit_voltage=100, limit_current=5, limit_temperature=50, rate_up=25, rate_down=25):
-        try:
+    def set_hv_init_configuration(self, port, channels ,voltage_set = 800, threshold_set=100, limit_trip_time=2, limit_voltage=100, limit_current=5, limit_temperature=50, rate_up=25, rate_down=25):
+        
+        if channels == "all":
+            all_valid_channels = []
+            not_all_valid_channels = []
+            try:
+                for i in range(1, 8):
+                    if self.open(port, i):
+                        if self.statusString(self.getStatus()) == "DOWN":
+                            self.setVoltageSet(voltage_set)
+                            time.sleep(0.2)
+                            self.setLimitVoltage(limit_voltage)
+                            time.sleep(0.2)
+                            self.setLimitCurrent(limit_current)
+                            time.sleep(0.2)
+                            self.setLimitTemperature(limit_temperature)
+                            time.sleep(0.2)
+                            self.setLimitTriptime(limit_trip_time)
+                            time.sleep(0.2)
+                            self.setThreshold(threshold_set)
+                            time.sleep(0.2)
+                            self.setRateRampup(rate_up)
+                            time.sleep(0.2)
+                            self.setRateRampdown(rate_down)
+                            time.sleep(5)
+                            
+                        else:
+                            self.powerOff()
+                            time.sleep(5)
+                            self.setVoltageSet(voltage_set)
+                            time.sleep(0.2)
+                            self.setLimitVoltage(limit_voltage)
+                            time.sleep(0.2)
+                            self.setLimitCurrent(limit_current)
+                            time.sleep(0.2)
+                            self.setLimitTemperature(limit_temperature)
+                            time.sleep(0.2)
+                            self.setLimitTriptime(limit_trip_time)
+                            time.sleep(0.2)
+                            self.setThreshold(threshold_set)
+                            time.sleep(0.2)
+                            self.setRateRampup(rate_up)
+                            time.sleep(0.2)
+                            self.setRateRampdown(rate_down)
+                            time.sleep(5)
+                            
+                        all_valid_channels.append(channel)
+                                            
+                    else:
+                        print(f"It was not possible to open channel: {channel}")
+                        not_all_valid_channels.append(channel)
+                        pass
 
-            if self.open(port, channel):
-                if self.statusString(self.getStatus()) == "DOWN":
-                    self.setVoltageSet(voltage_set)
-                    time.sleep(0.2)
-                    self.setLimitVoltage(limit_voltage)
-                    time.sleep(0.2)
-                    self.setLimitCurrent(limit_current)
-                    time.sleep(0.2)
-                    self.setLimitTemperature(limit_temperature)
-                    time.sleep(0.2)
-                    self.setLimitTriptime(limit_trip_time)
-                    time.sleep(0.2)
-                    self.setThreshold(threshold_set)
-                    time.sleep(0.2)
-                    self.setRateRampup(rate_up)
-                    time.sleep(0.2)
-                    self.setRateRampdown(rate_down)
-                    print("HV configuration set successfully")
-                    return {"Vset": voltage_set, "limitV": limit_voltage, "limitI": limit_current, "limitT": limit_temperature, "limitTRIP": limit_trip_time, "threshold": threshold_set, "rateUP" : rate_up, "rateDN": rate_down}
-                
+            except Exception as e:
+                print(f"It was not possible to configure the HV board as desired: {e}")
+                return (False,None)
+            
+            return (all_valid_channels, not_all_valid_channels)
+        
+        else:
+            valid_channels = []
+            not_valid_channels = []
+            channel_list = [int(x) for x in channels.split(",")]
+            for channel in channel_list:
+                if self.check_address(channel):
+                    if self.open(port, i):
+                        if self.statusString(self.getStatus()) == "DOWN":
+                            self.setVoltageSet(voltage_set)
+                            time.sleep(0.2)
+                            self.setLimitVoltage(limit_voltage)
+                            time.sleep(0.2)
+                            self.setLimitCurrent(limit_current)
+                            time.sleep(0.2)
+                            self.setLimitTemperature(limit_temperature)
+                            time.sleep(0.2)
+                            self.setLimitTriptime(limit_trip_time)
+                            time.sleep(0.2)
+                            self.setThreshold(threshold_set)
+                            time.sleep(0.2)
+                            self.setRateRampup(rate_up)
+                            time.sleep(0.2)
+                            self.setRateRampdown(rate_down)
+                            time.sleep(5)
+                        
+                        else:
+                            self.powerOff()
+                            time.sleep(5)
+                            self.setVoltageSet(voltage_set)
+                            time.sleep(0.2)
+                            self.setLimitVoltage(limit_voltage)
+                            time.sleep(0.2)
+                            self.setLimitCurrent(limit_current)
+                            time.sleep(0.2)
+                            self.setLimitTemperature(limit_temperature)
+                            time.sleep(0.2)
+                            self.setLimitTriptime(limit_trip_time)
+                            time.sleep(0.2)
+                            self.setThreshold(threshold_set)
+                            time.sleep(0.2)
+                            self.setRateRampup(rate_up)
+                            time.sleep(0.2)
+                            self.setRateRampdown(rate_down)
+                            time.sleep(5)
+
+                        valid_channels.append(channel)
+
+                                        
+                    else:
+                        print(f"It was not possible to open channel: {channel}")
+                        not_valid_channels.append(channel)
+                        pass
                 else:
-                    self.powerOff()
-                    time.sleep(5)
-                    self.setVoltageSet(voltage_set)
-                    time.sleep(0.2)
-                    self.setLimitVoltage(limit_voltage)
-                    time.sleep(0.2)
-                    self.setLimitCurrent(limit_current)
-                    time.sleep(0.2)
-                    self.setLimitTemperature(limit_temperature)
-                    time.sleep(0.2)
-                    self.setLimitTriptime(limit_trip_time)
-                    time.sleep(0.2)
-                    self.setThreshold(threshold_set)
-                    time.sleep(0.2)
-                    self.setRateRampup(rate_up)
-                    time.sleep(0.2)
-                    self.setRateRampdown(rate_down)
-              
-                    return {"Vset": voltage_set, "limitV": limit_voltage, "limitI": limit_current, "limitT": limit_temperature, "limitTRIP": limit_trip_time, "threshold": threshold_set, "rateUP" : rate_up, "rateDN": rate_down}
-            else:
-                return None
+                    print(f"Channel {channel} is out of range. Ignored")
+                    not_valid_channels.append(channel)
+                    pass
 
-        except Exception as e:
-            print(f"It was not possible to configure the HV board as desired: {e}")
-            return None
-   
+            return(valid_channels, not_valid_channels)
+
+            
+        
