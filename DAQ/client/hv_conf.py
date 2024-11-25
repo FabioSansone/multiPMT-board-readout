@@ -167,7 +167,7 @@ class HV():
         statuses = {0: 'UP', 1: 'DOWN', 2: 'RUP', 3: 'RDN', 4: 'TUP', 5: 'TDN', 6: 'TRIP'}
         return statuses.get(statusCode, 'undef')
     
-    def set_hv_init_configuration(self, port, channels ,voltage_set = 800, threshold_set=100, limit_trip_time=2, limit_voltage=100, limit_current=5, limit_temperature=50, rate_up=25, rate_down=25):
+    def set_hv_init_configuration(self, channels, port = "/dev/ttyPS1", voltage_set = 800, threshold_set=100, limit_trip_time=2, limit_voltage=100, limit_current=5, limit_temperature=50, rate_up=25, rate_down=25):
         
         if channels == "all":
             all_valid_channels = []
@@ -213,11 +213,11 @@ class HV():
                             self.setRateRampdown(rate_down)
                             time.sleep(5)
                             
-                        all_valid_channels.append(channel)
+                        all_valid_channels.append(i)
                                             
                     else:
-                        print(f"It was not possible to open channel: {channel}")
-                        not_all_valid_channels.append(channel)
+                        print(f"It was not possible to open channel: {i}")
+                        not_all_valid_channels.append(i)
                         pass
 
             except Exception as e:
@@ -271,6 +271,71 @@ class HV():
                                 time.sleep(0.2)
                                 self.setRateRampdown(rate_down)
                                 time.sleep(5)
+
+                            valid_channels.append(channel)
+
+                        else:
+                            print("Channel and address selected don't match")
+
+                            
+                    else:
+                        print(f"It was not possible to open channel: {channel}")
+                        not_valid_channels.append(channel)
+                        pass
+                else:
+                    print(f"Channel {channel} is out of range. Ignored")
+                    not_valid_channels.append(channel)
+                    pass
+
+            return(valid_channels, not_valid_channels)
+        
+
+    def set_voltage(self, channels, voltage_set, port = "/dev/ttyPS1"):
+        if channels == "all":
+            all_valid_channels = []
+            not_all_valid_channels = []
+            try:
+                for i in range(1, 8):
+                    if self.open(port, i):
+                        if self.statusString(self.getStatus()) == "DOWN":
+                            self.setVoltageSet(voltage_set)
+                            time.sleep(5)
+                        else:
+                                self.powerOff()
+                                time.sleep(5)
+                                self.setVoltageSet(voltage_set)
+                                time.sleep(0.2)
+
+                        all_valid_channels.append(i)
+                                            
+                    else:
+                        print(f"It was not possible to open channel: {i}")
+                        not_all_valid_channels.append(i)
+                        pass
+
+            except Exception as e:
+                print(f"It was not possible to configure the HV board as desired: {e}")
+                return (False,None)
+            
+            return (all_valid_channels, not_all_valid_channels)
+    
+        else:
+            valid_channels = []
+            not_valid_channels = []
+            channel_list = [int(x) for x in channels.split(",")]
+            for channel in channel_list:
+                if self.checkAddressBoundary(channel):
+                    if self.open(port, channel):
+                        if self.check_address(channel):
+                            if self.statusString(self.getStatus()) == "DOWN":
+                                self.setVoltageSet(voltage_set)
+                                time.sleep(0.2)
+                            
+                            else:
+                                self.powerOff()
+                                time.sleep(5)
+                                self.setVoltageSet(voltage_set)
+                                time.sleep(0.2)
 
                             valid_channels.append(channel)
 
