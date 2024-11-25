@@ -20,8 +20,8 @@ PING_TIMEOUT = 5
 
 def client():
 
-    server_address = "tcp://localhost:8005"
-    #server_address = f"tcp://{args.ip}:8005"
+    #server_address = "tcp://localhost:8005"
+    server_address = f"tcp://{args.ip}:8005"
 
     context = zmq.Context()
 
