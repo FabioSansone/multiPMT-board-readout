@@ -157,15 +157,10 @@ class HV():
     
 
     def check_address(self, channel):
-        if self.checkAddressBoundary(channel):
-            print(self.getAddress())
-            if self.getAddress() == channel  : #Address and channel as variables go from 1 to 7
-                return True
-            else:
-                print("The HV board selected doesn't match the channel interested")
-                return False
+        if self.getAddress() == channel and self.isConnected() : #Address and channel as variables go from 1 to 7
+            return True
         else:
-            print("The HV board is not connected and was not possible to retrieve and check its address")
+            print("The HV board selected doesn't match the channel interested")
             return False
     
     def statusString(self, statusCode):
@@ -236,49 +231,53 @@ class HV():
             not_valid_channels = []
             channel_list = [int(x) for x in channels.split(",")]
             for channel in channel_list:
-                if self.check_address(channel):
-                    if self.open(port, channel) and self.isConnected():
-                        if self.statusString(self.getStatus()) == "DOWN":
-                            self.setVoltageSet(voltage_set)
-                            time.sleep(0.2)
-                            self.setLimitVoltage(limit_voltage)
-                            time.sleep(0.2)
-                            self.setLimitCurrent(limit_current)
-                            time.sleep(0.2)
-                            self.setLimitTemperature(limit_temperature)
-                            time.sleep(0.2)
-                            self.setLimitTriptime(limit_trip_time)
-                            time.sleep(0.2)
-                            self.setThreshold(threshold_set)
-                            time.sleep(0.2)
-                            self.setRateRampup(rate_up)
-                            time.sleep(0.2)
-                            self.setRateRampdown(rate_down)
-                            time.sleep(5)
-                        
+                if self.checkAddressBoundary(channel):
+                    if self.open(port, channel):
+                        if self.check_address(channel):
+                            if self.statusString(self.getStatus()) == "DOWN":
+                                self.setVoltageSet(voltage_set)
+                                time.sleep(0.2)
+                                self.setLimitVoltage(limit_voltage)
+                                time.sleep(0.2)
+                                self.setLimitCurrent(limit_current)
+                                time.sleep(0.2)
+                                self.setLimitTemperature(limit_temperature)
+                                time.sleep(0.2)
+                                self.setLimitTriptime(limit_trip_time)
+                                time.sleep(0.2)
+                                self.setThreshold(threshold_set)
+                                time.sleep(0.2)
+                                self.setRateRampup(rate_up)
+                                time.sleep(0.2)
+                                self.setRateRampdown(rate_down)
+                                time.sleep(5)
+                            
+                            else:
+                                self.powerOff()
+                                time.sleep(5)
+                                self.setVoltageSet(voltage_set)
+                                time.sleep(0.2)
+                                self.setLimitVoltage(limit_voltage)
+                                time.sleep(0.2)
+                                self.setLimitCurrent(limit_current)
+                                time.sleep(0.2)
+                                self.setLimitTemperature(limit_temperature)
+                                time.sleep(0.2)
+                                self.setLimitTriptime(limit_trip_time)
+                                time.sleep(0.2)
+                                self.setThreshold(threshold_set)
+                                time.sleep(0.2)
+                                self.setRateRampup(rate_up)
+                                time.sleep(0.2)
+                                self.setRateRampdown(rate_down)
+                                time.sleep(5)
+
+                            valid_channels.append(channel)
+
                         else:
-                            self.powerOff()
-                            time.sleep(5)
-                            self.setVoltageSet(voltage_set)
-                            time.sleep(0.2)
-                            self.setLimitVoltage(limit_voltage)
-                            time.sleep(0.2)
-                            self.setLimitCurrent(limit_current)
-                            time.sleep(0.2)
-                            self.setLimitTemperature(limit_temperature)
-                            time.sleep(0.2)
-                            self.setLimitTriptime(limit_trip_time)
-                            time.sleep(0.2)
-                            self.setThreshold(threshold_set)
-                            time.sleep(0.2)
-                            self.setRateRampup(rate_up)
-                            time.sleep(0.2)
-                            self.setRateRampdown(rate_down)
-                            time.sleep(5)
+                            print("Channel and address selected don't match")
 
-                        valid_channels.append(channel)
-
-                                        
+                            
                     else:
                         print(f"It was not possible to open channel: {channel}")
                         not_valid_channels.append(channel)
