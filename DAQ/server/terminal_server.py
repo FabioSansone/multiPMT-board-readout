@@ -283,7 +283,7 @@ class ServerTerminal(cmd2.Cmd):
             try:
                 response_conf = json.loads(conf[1].decode("utf-8"))
                 if conf[0] == b"HV" and response_conf.get("response") == "hv_init_conf":
-                    print(f"It was possible to set the initial configuration for the following channels: {response_conf.get("result")[0]}. \n It was not possible to set the following channels: {response_conf.get("result")[1]}")
+                    print(f"It was possible to set the initial configuration for the following channels: {response_conf.get('result')[0]}. \n It was not possible to set the following channels: {response_conf.get('result')[1]}")
                     
             except json.JSONDecodeError:
                 self.poutput("Failed to decode the response.")
