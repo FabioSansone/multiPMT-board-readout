@@ -39,7 +39,7 @@ def client():
 
         try:
             if time.time() - last_ping >= PING_INTERVAL:
-                print("Ping signal sent")
+                #print("Ping signal sent")
                 connection_socket.send(b"Ping")
                 last_ping = time.time()
             
@@ -56,7 +56,7 @@ def client():
 
 
             else:
-                print("No response from server. Reconnecting...")
+                #print("No response from server. Reconnecting...")
                 time.sleep(PING_INTERVAL)
                 connection_socket.disconnect(server_address)
                 connection_socket.connect(server_address)
