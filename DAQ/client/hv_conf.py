@@ -158,7 +158,7 @@ class HV():
 
     def check_address(self, channel):
         if self.checkAddressBoundary(channel):
-            print(self.getAddress)
+            print(self.getAddress())
             if self.getAddress() == channel  : #Address and channel as variables go from 1 to 7
                 return True
             else:
