@@ -37,8 +37,8 @@ class HV():
         else:
             return False
         
-    def checkAddressBoundary(self):
-        return self.channel >= 1 and self.channel <= 20
+    def checkAddressBoundary(self, channel):
+        return channel >= 1 and channel <= 20
     
     def isConnected(self):
         return self.address is not None
@@ -157,7 +157,7 @@ class HV():
     
 
     def check_address(self, channel):
-        if self.checkAddressBoundary():
+        if self.checkAddressBoundary(channel):
             if self.getAddress() == channel : #Address and channel as variables go from 1 to 7
                 return True
             else:
