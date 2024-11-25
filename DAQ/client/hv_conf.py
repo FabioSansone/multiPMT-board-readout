@@ -235,8 +235,8 @@ class HV():
             not_valid_channels = []
             channel_list = [int(x) for x in channels.split(",")]
             for channel in channel_list:
-                if self.check_address(i):
-                    if self.open(port, i) and self.isConnected():
+                if self.check_address(channel):
+                    if self.open(port, channel) and self.isConnected():
                         if self.statusString(self.getStatus()) == "DOWN":
                             self.setVoltageSet(voltage_set)
                             time.sleep(0.2)
