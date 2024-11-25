@@ -2,6 +2,9 @@ import zmq
 import argparse
 import time
 import json
+from hv_conf import HV
+
+hv = HV()
 
 
 def parse_args():
@@ -67,6 +70,15 @@ def client():
             break
 
 
+def send_json(socket, data): 
+
+    try: 
+        return socket.send(json.dumps(data).encode("utf-8"))
+    except json.JSONDecodeError: 
+        print("Error decoding JSON message") 
+        return None
+
+
 def receive_json(socket): 
 
     try: 
@@ -95,7 +107,25 @@ def handle_commands(socket):
 
         if command == "set_init_configuration":
             port = server_command.get("port")
-            channel = server_command.get("channel")        
+            channel = server_command.get("channel")
+            voltage_set = server_command.get("voltage_set")    
+            threshold_set = server_command.get("threshold_set")
+            limit_trip_time = server_command.get("limit_trip_time")    
+            limit_voltage = server_command.get("limit_voltage")
+            limit_current = server_command.get("limit_current")
+            limit_temperature = server_command.get("limit_temperature")
+            rate_up = server_command.get("rate_up")
+            rate_down = server_command.get("rate_down")
+
+            init_conf = {
+
+                "response" : "hv_init_conf",
+                "result" : hv.set_hv_init_configuration(port, channel, voltage_set, threshold_set, limit_trip_time, limit_voltage, limit_current, limit_temperature, rate_up, rate_down)
+
+            } 
+
+            send_json(socket, init_conf)
+
 
     
         

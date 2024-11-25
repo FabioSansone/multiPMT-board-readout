@@ -122,7 +122,9 @@ class ServerTerminal(cmd2.Cmd):
         return super().do_quit(_)
 
 
-    
+    #########################################################################
+    # RC Commands #
+    #########################################################################
 
     
 
@@ -225,6 +227,63 @@ class ServerTerminal(cmd2.Cmd):
                 response_pwr = json.loads(power_on[1].decode("utf-8"))
                 if power_on[0] == b"RC" and response_pwr.get("response") == "rc_power_on":
                     print(response_pwr.get("result"))
+                    
+            except json.JSONDecodeError:
+                self.poutput("Failed to decode the response.")
+
+
+
+
+
+
+    #########################################################################
+    # HV Commands #
+    #########################################################################
+
+
+    hv_set_init_conf = argparse.ArgumentParser()
+    hv_set_init_conf.add_argument("port", type=str, help="The serial port used to communicate with the board")
+    hv_set_init_conf.add_argument("channels", type=str, help="The channels intended to be configured")
+    hv_set_init_conf.add_argument("voltage_set")
+    hv_set_init_conf.add_argument("threshold_set")
+    hv_set_init_conf.add_argument("limit_trip_time")
+    hv_set_init_conf.add_argument("limit_voltage")
+    hv_set_init_conf.add_argument("limit_current")
+    hv_set_init_conf.add_argument("limit_temperature")
+    hv_set_init_conf.add_argument("rate_up")
+    hv_set_init_conf.add_argument("rate_down")
+
+    @cmd2.with_argparser(hv_set_init_conf)
+    @cmd2.with_category("HV")
+    def do_set_init_conf(self, args: argparse.Namespace) -> None:
+        "Function to set an initial configuration to the HV boards for the channel selected"
+
+        if self._check_client("HV"):
+            command_hv_init_conf = {
+
+                "type" : "hv_command",
+                "command" : "set_init_configuration",
+                "port": args.port,
+                "channel" : args.channels,
+                "voltage_set" : args.voltage_set,
+                "threshold_set" : args.threshold_set,
+                "limit_trip_time" : args.limit_trip_time,
+                "limit_voltage" : args.limit_voltage,
+                "limit_current" : args.limit_current,
+                "limit_temperature" : args.limit_temperature,
+                "rate_up" : args.rate_up,
+                "rate_down" : args.rate_down
+
+            }
+
+            control_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_hv_init_conf).encode("utf-8")])
+
+            conf = control_socket.recv_multipart()
+
+            try:
+                response_conf = json.loads(conf[1].decode("utf-8"))
+                if conf[0] == b"HV" and response_conf.get("response") == "hv_init_conf":
+                    print(f"It was possible to set the initial configuration for the following channels: {response_conf.get("result")[0]}. \n It was not possible to set the following channels: {response_conf.get("result")[1]}")
                     
             except json.JSONDecodeError:
                 self.poutput("Failed to decode the response.")
