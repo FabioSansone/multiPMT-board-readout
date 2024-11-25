@@ -4,10 +4,15 @@ import zmq
 import json
 import time
 
+dict_client_port = {
+
+    "RC" : "8005",
+    "HV" : "8006"
+
+}
+
 
 context = zmq.Context()
-control_socket = context.socket(zmq.ROUTER)
-control_socket.bind("tcp://*:8005")
 
 maxRegisterAddress_RC = 50
 
@@ -19,6 +24,7 @@ class ServerTerminal(cmd2.Cmd):
     intro  = "Welcome to the control interface of the multiPMT. Type ? or help to list commands."
     prompt = "|Main>"
     client = None
+    client_socket = None
 
     def __init__(self,) -> None:
         super().__init__()
@@ -38,34 +44,58 @@ class ServerTerminal(cmd2.Cmd):
 
         client_list = ["RC", "HV"]
         timeout = 10
+
+        if args.client not in client_list:
+            self.poutput(f"Invalid client name. Available clients: {client_list}")
+            return
+
+        if self.client_socket is not None:
+            self.client_socket.close()
+
+        self.client_socket = context.socket(zmq.ROUTER)
+        self.client_socket.setsockopt(zmq.RCVTIMEO, 1000)
+
+        try:
+            port = dict_client_port.get(args.client)
+            self.client_socket.bind(f"tcp://*:{port}")
+        except zmq.ZMQError as e:
+            self.poutput(f"Failed to bind socket on port {port}: {e}")
+            return
+        
+        self.poutput(f"Waiting for connection with client {args.client} on port {port}...")
+
+
+        client_id = args.client.encode("utf-8")
+        connected = False
         start_time = time.time()
 
-        if args.client in client_list:
-            client_id = args.client.encode("utf-8")
-            connected = False
     
-            while not connected and (time.time() - start_time < timeout):
-                try:
-                    client_id_received, information = control_socket.recv_multipart()
+        while not connected and (time.time() - start_time < timeout):
+            try:
+                client_id_received, information = self.client_socket.recv_multipart()
 
-                    if client_id_received == client_id and information == b"Ping":
-                        self.poutput("Ping signal received")
-                        control_socket.send_multipart([client_id, b"Alive"])
+                if client_id_received == client_id and information == b"Ping":
+                    self.poutput("Ping signal received")
+                    self.client_socket.send_multipart([client_id, b"Alive"])
 
-                        response = control_socket.recv_multipart()
-                        if response[0] == client_id and response[1] == b"Connection successful":
-                            self.poutput(f"Connection was successful with client: {args.client}")
-                            self.client = args.client
-                            self.prompt = f"|{args.client}>"
-                            connected = True
-                    else:
-                        self.poutput("It was not possible to connect with the client selected")
+                    response = self.client_socket.recv_multipart()
+                    if response[0] == client_id and response[1] == b"Connection successful":
+                        self.poutput(f"Connection was successful with client: {args.client}")
+                        self.client = args.client
+                        self.prompt = f"|{args.client}>"
+                        connected = True
+                else:
+                    self.poutput("Received unexpected message or mismatched client ID.")
 
-                except zmq.Again:
-                    time.sleep(0.1)
+            except zmq.Again:
+                continue
 
-        else:
-            self.poutput(f"Invalid client name. Available clients: {client_list}")
+
+        
+        if not connected:
+            self.poutput(f"Failed to connect with client {args.client} within {timeout} seconds.")
+            self.client_socket.close()
+            self.client_socket = None
 
 
 
@@ -74,7 +104,7 @@ class ServerTerminal(cmd2.Cmd):
         Utility method to ensure the command is used in the correct client page.
         """
         if self.client != required_client:
-            print(f"This command is only available in the {required_client} client page.")
+            self.poutput(f"This command is only available in the {required_client} client page.")
             return False
         return True
     
@@ -85,20 +115,23 @@ class ServerTerminal(cmd2.Cmd):
         """
         Return to the main menu.
         """
+        if self.client_socket is None:
+            self.poutput("No client is connected.")
+            return
 
         command_back = {
-
-            "type" : "clients",
-            "command" : "back"
+            "type": "clients",
+            "command": "back"
         }
 
-
-        control_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_back).encode("utf-8")])
-
+        try:
+            self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_back).encode("utf-8")])
+            self.poutput(f"Returning to the main menu from client {self.client}.")
+        except zmq.ZMQError as e:
+            self.poutput(f"Failed to send 'back' command: {e}")
 
         self.client = None
         self.prompt = "|Main>"
-        self.poutput("Returned to the main menu")
 
 
 
@@ -116,7 +149,7 @@ class ServerTerminal(cmd2.Cmd):
             }
 
 
-            control_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_back).encode("utf-8")])
+            self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_back).encode("utf-8")])
             
         self.poutput("Quit command received. Shutting down...")
         return super().do_quit(_)
@@ -148,9 +181,9 @@ class ServerTerminal(cmd2.Cmd):
 
             }
 
-            control_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_rc_read).encode("utf-8")])
+            self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_rc_read).encode("utf-8")])
         
-            read = control_socket.recv_multipart()
+            read = self.client_socket.recv_multipart()
 
             try:
                 response_data = json.loads(read[1].decode("utf-8"))
@@ -188,9 +221,9 @@ class ServerTerminal(cmd2.Cmd):
             }
 
 
-            control_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_rc_write).encode("utf-8")])
+            self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_rc_write).encode("utf-8")])
         
-            write = control_socket.recv_multipart()
+            write = self.client_socket.recv_multipart()
 
             try:
                 response = json.loads(write[1].decode("utf-8"))
@@ -219,9 +252,9 @@ class ServerTerminal(cmd2.Cmd):
 
             }
 
-            control_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_rc_pwr_on).encode("utf-8")])
+            self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_rc_pwr_on).encode("utf-8")])
 
-            power_on = control_socket.recv_multipart()
+            power_on = self.client_socket.recv_multipart()
 
             try:
                 response_pwr = json.loads(power_on[1].decode("utf-8"))
@@ -276,9 +309,9 @@ class ServerTerminal(cmd2.Cmd):
 
             }
 
-            control_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_hv_init_conf).encode("utf-8")])
+            self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_hv_init_conf).encode("utf-8")])
 
-            conf = control_socket.recv_multipart()
+            conf = self.client_socket.recv_multipart()
 
             try:
                 response_conf = json.loads(conf[1].decode("utf-8"))
@@ -303,5 +336,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("\n Shutting down...")
     finally:
-        control_socket.close()
-        context.term()
+        if app.client_socket:
+            app.client_socket.close()
+            context.term()
