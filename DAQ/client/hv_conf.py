@@ -157,7 +157,7 @@ class HV():
     
 
     def check_address(self, channel):
-        if self.isConnected() and self.checkAddressBoundary():
+        if self.checkAddressBoundary():
             if self.getAddress() == channel : #Address and channel as variables go from 1 to 7
                 return True
             else:
@@ -235,8 +235,8 @@ class HV():
             not_valid_channels = []
             channel_list = [int(x) for x in channels.split(",")]
             for channel in channel_list:
-                if self.check_address(channel):
-                    if self.open(port, i):
+                if self.check_address(i):
+                    if self.open(port, i) and self.isConnected():
                         if self.statusString(self.getStatus()) == "DOWN":
                             self.setVoltageSet(voltage_set)
                             time.sleep(0.2)
