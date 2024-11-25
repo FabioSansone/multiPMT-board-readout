@@ -158,7 +158,8 @@ class HV():
 
     def check_address(self, channel):
         if self.checkAddressBoundary(channel):
-            if self.getAddress() == channel : #Address and channel as variables go from 1 to 7
+            print(self.getAddress)
+            if self.getAddress() == channel  : #Address and channel as variables go from 1 to 7
                 return True
             else:
                 print("The HV board selected doesn't match the channel interested")
