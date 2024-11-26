@@ -246,7 +246,7 @@ class HV():
         return valid_channels, not_valid_channels
     
 
-    def set_hv_init_configuration(self, channels, port, voltage_set, threshold_set, limit_trip_time, limit_voltage, limit_current, limit_temperature, rate_up, rate_down):
+    def set_hv_init_configuration(self, port, channels, voltage_set, threshold_set, limit_trip_time, limit_voltage, limit_current, limit_temperature, rate_up, rate_down):
 
         """Function to set an initial configuration to the HV board."""
 
