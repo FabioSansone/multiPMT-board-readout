@@ -233,7 +233,7 @@ class HV():
                 not_valid_channels.append(channel)
                 continue
 
-            if not self.check_address(channel):
+            if not self.check_address( port, channel):
                 print("Channel and address selected don't match.")
                 not_valid_channels.append(channel)
                 continue
