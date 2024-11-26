@@ -53,7 +53,7 @@ class ServerTerminal(cmd2.Cmd):
             self.client_socket.close()
 
         self.client_socket = context.socket(zmq.ROUTER)
-        self.client_socket.setsockopt(zmq.RCVTIMEO, 1000)
+        #self.client_socket.setsockopt(zmq.RCVTIMEO, 6000)
 
         try:
             port = dict_client_port.get(args.client)
