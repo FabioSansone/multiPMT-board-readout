@@ -275,8 +275,8 @@ class ServerTerminal(cmd2.Cmd):
 
 
     hv_set_init_conf = argparse.ArgumentParser()
-    hv_set_init_conf.add_argument("port", type=str, help="The serial port used to communicate with the board")
     hv_set_init_conf.add_argument("channels", type=str, help="The channels intended to be configured")
+    hv_set_init_conf.add_argument("--port", type=str, default="/dev/ttyPS1", help="The serial port used to communicate with the board")
     hv_set_init_conf.add_argument("--voltage_set", type=int, default=800, help="The default voltage to set (default: 800)")
     hv_set_init_conf.add_argument("--threshold_set", type=int, default=100, help="The threshold to set (default: 100)")
     hv_set_init_conf.add_argument("--limit_trip_time", type=int, default=2, help="The trip time limit (default: 2)")
@@ -317,6 +317,41 @@ class ServerTerminal(cmd2.Cmd):
                 response_conf = json.loads(conf[1].decode("utf-8"))
                 if conf[0] == b"HV" and response_conf.get("response") == "hv_init_conf":
                     print(f"It was possible to set the initial configuration for the following channels: {response_conf.get('result')[0]}. \n It was not possible to set the following channels: {response_conf.get('result')[1]}")
+                    
+            except json.JSONDecodeError:
+                self.poutput("Failed to decode the response.")
+
+    
+    hv_set_voltage_set = argparse.ArgumentParser()
+    hv_set_voltage_set.add_argument("channels", type=str, help="The channels intended to be configured")
+    hv_set_voltage_set.add_argument("voltage_set", type=int, help="The voltage to set")
+    hv_set_voltage_set.add_argument("--port", type=str, default="/dev/ttyPS1", help="The serial port used to communicate with the board")
+
+
+    @cmd2.with_argparser(hv_set_voltage_set)
+    @cmd2.with_category("HV")
+    def do_set_voltage(self, args: argparse.Namespace) -> None:
+        "Function to set the voltage set to the HV boards for the channels selected"
+
+
+        if self._check_client("HV"):
+            command_hv_set_voltage = {
+
+                "type" : "hv_command",
+                "command" : "set_voltage",
+                "port": args.port,
+                "channel" : args.channels,
+                "voltage_set" : args.voltage_set
+            }
+
+            self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_hv_set_voltage).encode("utf-8")])
+
+            voltage_set = self.client_socket.recv_multipart()
+
+            try:
+                response_volt = json.loads(voltage_set[1].decode("utf-8"))
+                if voltage_set[0] == b"HV" and response_volt.get("response") == "hv_init_conf":
+                    print(f"It was possible to set the voltage for the following channels: {response_volt.get('result')[0]}. \n \n It was not possible to set the voltage for the following channels: {response_volt.get('result')[1]}")
                     
             except json.JSONDecodeError:
                 self.poutput("Failed to decode the response.")

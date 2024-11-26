@@ -126,6 +126,23 @@ def handle_commands(socket):
 
             send_json(socket, init_conf)
 
+            
+        
+        if command == "set_voltage":
+            port = server_command.get("port")
+            channel = server_command.get("channel")
+            voltage_set = server_command.get("voltage_set")    
+
+            v_set = {
+
+                "response" : "hv_voltage_set",
+                "result" : hv.set_voltage(channel, voltage_set, port)
+
+            }
+
+            send_json(socket, v_set)
+
+
 
     
         
