@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+#coding=utf-8
+
+
 import zmq
 import argparse
 import time
@@ -126,7 +130,7 @@ def handle_commands(socket):
 
             send_json(socket, init_conf)
 
-            
+
         
         if command == "set_voltage":
             port = server_command.get("port")

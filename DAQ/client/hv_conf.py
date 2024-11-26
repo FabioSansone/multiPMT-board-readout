@@ -1,3 +1,4 @@
+
 import minimalmodbus
 import time
 
@@ -180,6 +181,8 @@ class HV():
             print(f"It was not possible to open channel: {channel}")
             return False
         
+        time.sleep(1)
+         
         if voltage_set is not None:
             self.setVoltageSet(voltage_set)
             time.sleep(1)
@@ -228,20 +231,26 @@ class HV():
         
         for channel in channel_list:
 
+            time.sleep(1)
             if not self.checkAddressBoundary(channel):
                 print(f"Channel {channel} is out of range. Ignored.")
                 not_valid_channels.append(channel)
                 continue
-
-            if not self.check_address( port, channel):
+            
+            time.sleep(1)
+            if not self.check_address(port, channel):
                 print("Channel and address selected don't match.")
                 not_valid_channels.append(channel)
                 continue
-
+            
+            time.sleep(1)
             if self.configure_channel(channel, port, **kwargs):
                 valid_channels.append(channel)
+                time.sleep(1)
+                
             else:
                 not_valid_channels.append(channel)
+                time.sleep(1)
 
         return valid_channels, not_valid_channels
     
