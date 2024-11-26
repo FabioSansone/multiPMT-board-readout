@@ -156,11 +156,14 @@ class HV():
         return monData
     
 
-    def check_address(self, channel):
-        if self.getAddress() == channel and self.isConnected() : #Address and channel as variables go from 1 to 7
-            return True
+    def check_address(self, port, channel):
+        if self.open(port, channel):
+            if self.getAddress() == channel and self.isConnected() : #Address and channel as variables go from 1 to 7
+                return True
+            else:
+                print("The HV board selected doesn't match the channel interested")
+                return False
         else:
-            print("The HV board selected doesn't match the channel interested")
             return False
     
     def statusString(self, statusCode):
