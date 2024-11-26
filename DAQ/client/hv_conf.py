@@ -181,32 +181,32 @@ class HV():
             print(f"It was not possible to open channel: {channel}")
             return False
         
-        time.sleep(1)
+        time.sleep(0.2)
          
         if voltage_set is not None:
             self.setVoltageSet(voltage_set)
-            time.sleep(1)
+            time.sleep(0.2)
         if threshold_set is not None:
             self.setThreshold(threshold_set)
-            time.sleep(1)
+            time.sleep(0.2)
         if limit_trip_time is not None:
             self.setLimitTriptime(limit_trip_time)
-            time.sleep(1)
+            time.sleep(0.2)
         if limit_voltage is not None:
             self.setLimitVoltage(limit_voltage)
-            time.sleep(1)
+            time.sleep(0.2)
         if limit_current is not None:
             self.setLimitCurrent(limit_current)
-            time.sleep(1)
+            time.sleep(0.2)
         if limit_temperature is not None:
             self.setLimitTemperature(limit_temperature)
-            time.sleep(1)
+            time.sleep(0.2)
         if rate_up is not None:
             self.setRateRampup(rate_up)
-            time.sleep(1)
+            time.sleep(0.2)
         if rate_down is not None:
             self.setRateRampdown(rate_down)
-            time.sleep(1)
+            time.sleep(0.2)
 
         return True
 
@@ -231,26 +231,26 @@ class HV():
         
         for channel in channel_list:
 
-            time.sleep(1)
+            time.sleep(0.)
             if not self.checkAddressBoundary(channel):
                 print(f"Channel {channel} is out of range. Ignored.")
                 not_valid_channels.append(channel)
                 continue
             
-            time.sleep(1)
+            time.sleep(0.)
             if not self.check_address(port, channel):
                 print("Channel and address selected don't match.")
                 not_valid_channels.append(channel)
                 continue
             
-            time.sleep(1)
+            time.sleep(0.)
             if self.configure_channel(channel, port, **kwargs):
                 valid_channels.append(channel)
-                time.sleep(1)
+                time.sleep(0.2)
                 
             else:
                 not_valid_channels.append(channel)
-                time.sleep(1)
+                time.sleep(0.2)
 
         return valid_channels, not_valid_channels
     
