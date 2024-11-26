@@ -350,7 +350,7 @@ class ServerTerminal(cmd2.Cmd):
 
             try:
                 response_volt = json.loads(voltage_set[1].decode("utf-8"))
-                if voltage_set[0] == b"HV" and response_volt.get("response") == "hv_init_conf":
+                if voltage_set[0] == b"HV" and response_volt.get("response") == "hv_voltage_set":
                     self.poutput(f"It was possible to set the voltage for the following channels: {response_volt.get('result')[0]}. \n It was not possible to set the voltage for the following channels: {response_volt.get('result')[1]}")
                     
             except json.JSONDecodeError:
