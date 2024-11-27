@@ -510,6 +510,41 @@ class ServerTerminal(cmd2.Cmd):
 
 
 
+    hv_on = argparse.ArgumentParser()
+    hv_on.add_argument("channels", type=str, help="The channels intended to be configured")
+    hv_on.add_argument("--port", type=str, default="/dev/ttyPS1", help="The serial port used to communicate with the board")
+
+    @cmd2.with_argparser(hv_on)
+    @cmd2.with_category("HV")
+    def do_on(self, args: argparse.Namespace) -> None:
+        "Function to power on all or selected channels"
+
+        if self._check_client("HV"):
+            command_hv_on = {
+
+                "type" : "hv_command",
+                "command" : "set_power_on",
+                "port" : args.port,
+                "channel" : args.channels
+
+            }
+
+            self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_hv_on).encode("utf-8")])
+
+            hv_on = self.client_socket.recv_multipart()
+
+            try:
+                response_on = json.loads(hv_on[1].decode("utf-8"))
+                if hv_on[0] == b"HV" and response_on.get("result") == "hv_power_on":
+                    self.poutput(f"It was possible to power on all the channels selected")
+                else:
+                    self.poutput(f"It was possible to power on all the channels selected")
+                    
+            except json.JSONDecodeError:
+                self.poutput("Failed to decode the response.")
+
+
+
 
 
 

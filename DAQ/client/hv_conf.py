@@ -209,24 +209,35 @@ class HV():
             time.sleep(0.2)
 
         return True
+    
+
+    def get_channels(self, channels):
+        """Function to get which channels """
+
+        if channels == "all":
+            channel_list = range(1, 8)
+            return channel_list
+        else:
+            try:
+                channel_list = [int(x) for x in channels.split(",")]
+                return channel_list
+            except ValueError:
+                return []
 
 
 
-    def process_channels(self, channels, port, **kwargs):
+
+    def process_channels(self, channels, port,**kwargs):
 
         """Process a list of channels or all of them"""
 
         valid_channels = []
         not_valid_channels = []
 
-        if channels == "all":
-            channel_list = range(1, 8)
-        else:
-            try:
-                channel_list = [int(x) for x in channels.split(",")]
-            except ValueError:
-                print("Invalid channel format. Must be 'all' or comma-separated numbers.")
-                return valid_channels, not_valid_channels #They are returned empty in this situation
+        channel_list = self.get_channels(channels)
+
+        if channel_list == []:
+            return [],[]
 
         
         for channel in channel_list:
@@ -309,6 +320,35 @@ class HV():
         """Function to set only the voltage set to a single or multiple channels"""
 
         return self.process_channels(channels, port, limit_trip_time=limit_trip_time)
+    
+
+    def power_on(self, channels, port):
+
+        list_channels = self.get_channels(channels)
+
+        for channel in list_channels:
+            if self.open(port, channel):
+                self.powerOn()
+            else:
+                return False
+        return True
+    
+
+    def power_off(self, channels, port):
+
+        list_channels = self.get_channels(channels)
+
+        for channel in list_channels:
+            if self.open(port, channel):
+                self.powerOff()
+            else:
+                return False
+        return True
+    
+
+
+
+
     
 
 

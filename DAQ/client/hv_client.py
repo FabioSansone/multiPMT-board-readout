@@ -206,6 +206,36 @@ def handle_commands(socket):
             send_json(socket, set_threshold)
 
 
+        if command == "set_power_on":
+            port = server_command.get("port")
+            channel = server_command.get("channel")
+
+
+            set_power_on = {
+
+                "response": "hv_power_on",
+                "result" : hv.power_on(channel, port)
+
+            }
+
+            send_json(socket, set_power_on)
+
+
+        if command == "set_power_off":
+            port = server_command.get("port")
+            channel = server_command.get("channel")
+
+
+            set_power_off = {
+
+                "response": "hv_power_off",
+                "result" : hv.power_off(channel, port)
+
+            }
+
+            send_json(socket, set_power_off)
+
+
 
     
         
