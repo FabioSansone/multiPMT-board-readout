@@ -385,7 +385,7 @@ class ServerTerminal(cmd2.Cmd):
 
             try:
                 response_threshold = json.loads(threshold_set[1].decode("utf-8"))
-                if threshold_set[0] == b"HV" and threshold_set.get("response") == "hv_threshold":
+                if threshold_set[0] == b"HV" and response_threshold.get("response") == "hv_threshold":
                     self.poutput(f"It was possible to set the threshold for the following channels: {response_threshold.get('result')[0]}. \n It was not possible to set the voltage for the following channels: {response_threshold.get('result')[1]}")
                     
             except json.JSONDecodeError:
@@ -423,7 +423,7 @@ class ServerTerminal(cmd2.Cmd):
 
             try:
                 response_limitV = json.loads(limitV[1].decode("utf-8"))
-                if limitV[0] == b"HV" and limitV.get("response") == "hv_voltage_limit":
+                if limitV[0] == b"HV" and response_limitV.get("response") == "hv_voltage_limit":
                     self.poutput(f"It was possible to set the threshold for the following channels: {response_limitV.get('result')[0]}. \n It was not possible to set the voltage for the following channels: {response_limitV.get('result')[1]}")
                     
             except json.JSONDecodeError:
@@ -462,7 +462,7 @@ class ServerTerminal(cmd2.Cmd):
 
             try:
                 response_limitI = json.loads(limitI[1].decode("utf-8"))
-                if limitI[0] == b"HV" and limitI.get("response") == "hv_current_limit":
+                if limitI[0] == b"HV" and response_limitI.get("response") == "hv_current_limit":
                     self.poutput(f"It was possible to set the threshold for the following channels: {response_limitI.get('result')[0]}. \n It was not possible to set the voltage for the following channels: {response_limitI.get('result')[1]}")
                     
             except json.JSONDecodeError:
@@ -501,7 +501,7 @@ class ServerTerminal(cmd2.Cmd):
 
             try:
                 response_limitTrip = json.loads(limitTrip[1].decode("utf-8"))
-                if limitTrip[0] == b"HV" and limitTrip.get("response") == "hv_triptime_limit":
+                if limitTrip[0] == b"HV" and response_limitTrip.get("response") == "hv_triptime_limit":
                     self.poutput(f"It was possible to set the threshold for the following channels: {response_limitTrip.get('result')[0]}. \n It was not possible to set the voltage for the following channels: {response_limitTrip.get('result')[1]}")
                     
             except json.JSONDecodeError:
