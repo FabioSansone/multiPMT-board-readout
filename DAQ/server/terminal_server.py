@@ -424,7 +424,7 @@ class ServerTerminal(cmd2.Cmd):
             try:
                 response_limitV = json.loads(limitV[1].decode("utf-8"))
                 if limitV[0] == b"HV" and response_limitV.get("response") == "hv_voltage_limit":
-                    self.poutput(f"It was possible to set the threshold for the following channels: {response_limitV.get('result')[0]}. \n It was not possible to set the voltage for the following channels: {response_limitV.get('result')[1]}")
+                    self.poutput(f"It was possible to set the voltage limit for the following channels: {response_limitV.get('result')[0]}. \n It was not possible to set the voltage for the following channels: {response_limitV.get('result')[1]}")
                     
             except json.JSONDecodeError:
                 self.poutput("Failed to decode the response.")

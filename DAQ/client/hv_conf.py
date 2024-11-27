@@ -231,19 +231,19 @@ class HV():
         
         for channel in channel_list:
 
-            time.sleep(0.)
+            time.sleep(0.1)
             if not self.checkAddressBoundary(channel):
                 print(f"Channel {channel} is out of range. Ignored.")
                 not_valid_channels.append(channel)
                 continue
             
-            time.sleep(0.)
+            time.sleep(0.1)
             if not self.check_address(port, channel):
                 print("Channel and address selected don't match.")
                 not_valid_channels.append(channel)
                 continue
             
-            time.sleep(0.)
+            time.sleep(0.1)
             if self.configure_channel(channel, port, **kwargs):
                 valid_channels.append(channel)
                 time.sleep(0.2)
@@ -275,31 +275,40 @@ class HV():
 
         """Function to set only the voltage set to a single or multiple channels"""
 
-        return self.process_channels(channels, port, voltage_set=voltage_set)
+        return self.process_channels(channels, port, voltage_set)
+    
+
     
     def set_threshold(self, channels, threshold_set, port):
 
         """Function to set only the voltage set to a single or multiple channels"""
 
-        return self.process_channels(channels, port, threshold_set=threshold_set)
+        return self.process_channels(channels, port, threshold_set)
+    
+
+
     
     def set_limitI(self, channels, limit_current, port):
 
         """Function to set only the voltage set to a single or multiple channels"""
 
-        return self.process_channels(channels, port, limit_current=limit_current)
+        return self.process_channels(channels, port, limit_current)
+    
+
     
     def set_limitV(self, channels, limit_voltage, port):
 
         """Function to set only the voltage set to a single or multiple channels"""
 
-        return self.process_channels(channels, port, limit_voltage=limit_voltage)
+        return self.process_channels(channels, port, limit_voltage)
+    
+
     
     def set_limitTrip(self, channels, limit_trip_time, port):
 
         """Function to set only the voltage set to a single or multiple channels"""
 
-        return self.process_channels(channels, port, limit_trip_time=limit_trip_time)
+        return self.process_channels(channels, port, limit_trip_time)
     
 
 
