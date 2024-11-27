@@ -275,7 +275,7 @@ class HV():
 
         """Function to set only the voltage set to a single or multiple channels"""
 
-        return self.process_channels(channels, port, voltage_set)
+        return self.process_channels(channels, port, voltage_set=voltage_set)
     
 
     
@@ -283,7 +283,7 @@ class HV():
 
         """Function to set only the voltage set to a single or multiple channels"""
 
-        return self.process_channels(channels, port, threshold_set)
+        return self.process_channels(channels, port, threshold_set=threshold_set)
     
 
 
@@ -292,7 +292,7 @@ class HV():
 
         """Function to set only the voltage set to a single or multiple channels"""
 
-        return self.process_channels(channels, port, limit_current)
+        return self.process_channels(channels, port, limit_current=limit_current)
     
 
     
@@ -300,7 +300,7 @@ class HV():
 
         """Function to set only the voltage set to a single or multiple channels"""
 
-        return self.process_channels(channels, port, limit_voltage)
+        return self.process_channels(channels, port, limit_voltage=limit_voltage)
     
 
     
@@ -308,7 +308,7 @@ class HV():
 
         """Function to set only the voltage set to a single or multiple channels"""
 
-        return self.process_channels(channels, port, limit_trip_time)
+        return self.process_channels(channels, port, limit_trip_time=limit_trip_time)
     
 
 
