@@ -414,7 +414,7 @@ class ServerTerminal(cmd2.Cmd):
                 "command" : "set_limitV",
                 "port": args.port,
                 "channel" : args.channels,
-                "threshold" : args.limit_voltage
+                "lim_voltage" : args.limit_voltage
             }
 
             self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_hv_limitV).encode("utf-8")])
@@ -453,7 +453,7 @@ class ServerTerminal(cmd2.Cmd):
                 "command" : "set_limitI",
                 "port": args.port,
                 "channel" : args.channels,
-                "threshold" : args.limit_current
+                "lim_current" : args.limit_current
             }
 
             self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_hv_limitI).encode("utf-8")])
@@ -492,7 +492,7 @@ class ServerTerminal(cmd2.Cmd):
                 "command" : "set_limitTrip",
                 "port": args.port,
                 "channel" : args.channels,
-                "threshold" : args.limit_trip
+                "lim_triptime" : args.limit_trip
             }
 
             self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_hv_limitTrip).encode("utf-8")])
