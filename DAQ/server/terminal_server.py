@@ -363,7 +363,7 @@ class ServerTerminal(cmd2.Cmd):
     hv_threshold_set.add_argument("--port", type=str, default="/dev/ttyPS1", help="The serial port used to communicate with the board")
 
 
-    @cmd2.with_argparser(hv_set_voltage_set)
+    @cmd2.with_argparser(hv_threshold_set)
     @cmd2.with_category("HV")
     def do_set_threshold(self, args: argparse.Namespace) -> None:
         "Function to set the threshold set to the HV boards for the channels selected"
@@ -395,13 +395,13 @@ class ServerTerminal(cmd2.Cmd):
 
 
 
-    hv_threshold_set = argparse.ArgumentParser()
-    hv_threshold_set.add_argument("channels", type=str, help="The channels intended to be configured")
-    hv_threshold_set.add_argument("limit_voltage", type=int, help="The voltage limit to set")
-    hv_threshold_set.add_argument("--port", type=str, default="/dev/ttyPS1", help="The serial port used to communicate with the board")
+    hv_limitV = argparse.ArgumentParser()
+    hv_limitV.add_argument("channels", type=str, help="The channels intended to be configured")
+    hv_limitV.add_argument("limit_voltage", type=int, help="The voltage limit to set")
+    hv_limitV.add_argument("--port", type=str, default="/dev/ttyPS1", help="The serial port used to communicate with the board")
 
 
-    @cmd2.with_argparser(hv_set_voltage_set)
+    @cmd2.with_argparser(hv_limitV)
     @cmd2.with_category("HV")
     def do_set_limitV(self, args: argparse.Namespace) -> None:
         "Function to set the limit voltage to the HV boards for the channels selected"
@@ -434,13 +434,13 @@ class ServerTerminal(cmd2.Cmd):
 
 
 
-    hv_threshold_set = argparse.ArgumentParser()
-    hv_threshold_set.add_argument("channels", type=str, help="The channels intended to be configured")
-    hv_threshold_set.add_argument("limit_current", type=int, help="The current limit to set")
-    hv_threshold_set.add_argument("--port", type=str, default="/dev/ttyPS1", help="The serial port used to communicate with the board")
+    hv_limitI = argparse.ArgumentParser()
+    hv_limitI.add_argument("channels", type=str, help="The channels intended to be configured")
+    hv_limitI.add_argument("limit_current", type=int, help="The current limit to set")
+    hv_limitI.add_argument("--port", type=str, default="/dev/ttyPS1", help="The serial port used to communicate with the board")
 
 
-    @cmd2.with_argparser(hv_set_voltage_set)
+    @cmd2.with_argparser(hv_limitI)
     @cmd2.with_category("HV")
     def do_set_limitI(self, args: argparse.Namespace) -> None:
         "Function to set the limit current to the HV boards for the channels selected"
@@ -473,13 +473,13 @@ class ServerTerminal(cmd2.Cmd):
 
 
 
-    hv_threshold_set = argparse.ArgumentParser()
-    hv_threshold_set.add_argument("channels", type=str, help="The channels intended to be configured")
-    hv_threshold_set.add_argument("limit_trip", type=int, help="The trip time limit to set")
-    hv_threshold_set.add_argument("--port", type=str, default="/dev/ttyPS1", help="The serial port used to communicate with the board")
+    hv_limitTrip = argparse.ArgumentParser()
+    hv_limitTrip.add_argument("channels", type=str, help="The channels intended to be configured")
+    hv_limitTrip.add_argument("limit_trip", type=int, help="The trip time limit to set")
+    hv_limitTrip.add_argument("--port", type=str, default="/dev/ttyPS1", help="The serial port used to communicate with the board")
 
 
-    @cmd2.with_argparser(hv_set_voltage_set)
+    @cmd2.with_argparser(hv_limitTrip)
     @cmd2.with_category("HV")
     def do_set_limitTrip(self, args: argparse.Namespace) -> None:
         "Function to set the trip time to the HV boards for the channels selected"
