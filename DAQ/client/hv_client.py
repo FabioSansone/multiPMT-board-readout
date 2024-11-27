@@ -146,6 +146,65 @@ def handle_commands(socket):
 
             send_json(socket, v_set)
 
+        
+        if command == "set_limitV":
+            port = server_command.get("port")
+            channel = server_command.get("channel")
+            lim_voltage = server_command.get("lim_voltage")    
+
+            v_lim = {
+
+                "response" : "hv_voltage_limit",
+                "result" : hv.set_limitV(channel, lim_voltage, port)
+
+            }
+
+            send_json(socket, v_lim)
+
+        
+        if command == "set_limitI":
+            port = server_command.get("port")
+            channel = server_command.get("channel")
+            lim_current = server_command.get("lim_current")    
+
+            i_lim = {
+
+                "response" : "hv_current_limit",
+                "result" : hv.set_limitI(channel, lim_current, port)
+
+            }
+
+            send_json(socket, i_lim)
+
+        if command == "set_limitTrip":
+            port = server_command.get("port")
+            channel = server_command.get("channel")
+            lim_trip = server_command.get("lim_triptime")    
+
+            trip_lim = {
+
+                "response" : "hv_triptime_limit",
+                "result" : hv.set_limitTrip(channel, lim_trip, port)
+
+            }
+
+            send_json(socket, trip_lim)
+
+        
+        if command == "set_threshold":
+            port = server_command.get("port")
+            channel = server_command.get("channel")
+            threshold = server_command.get("threshold")    
+
+            set_threshold = {
+
+                "response" : "hv_threshold",
+                "result" : hv.set_threshold(channel, threshold, port)
+
+            }
+
+            send_json(socket, set_threshold)
+
 
 
     

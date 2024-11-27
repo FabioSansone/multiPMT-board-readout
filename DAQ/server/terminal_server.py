@@ -355,6 +355,157 @@ class ServerTerminal(cmd2.Cmd):
                     
             except json.JSONDecodeError:
                 self.poutput("Failed to decode the response.")
+    
+
+    hv_threshold_set = argparse.ArgumentParser()
+    hv_threshold_set.add_argument("channels", type=str, help="The channels intended to be configured")
+    hv_threshold_set.add_argument("threshold_set", type=int, help="The threshold to set")
+    hv_threshold_set.add_argument("--port", type=str, default="/dev/ttyPS1", help="The serial port used to communicate with the board")
+
+
+    @cmd2.with_argparser(hv_set_voltage_set)
+    @cmd2.with_category("HV")
+    def do_set_threshold(self, args: argparse.Namespace) -> None:
+        "Function to set the threshold set to the HV boards for the channels selected"
+
+
+        if self._check_client("HV"):
+            command_hv_set_threshold = {
+
+                "type" : "hv_command",
+                "command" : "set_threshold",
+                "port": args.port,
+                "channel" : args.channels,
+                "threshold" : args.threshold_set
+            }
+
+            self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_hv_set_threshold).encode("utf-8")])
+
+            threshold_set = self.client_socket.recv_multipart()
+
+            try:
+                response_threshold = json.loads(threshold_set[1].decode("utf-8"))
+                if threshold_set[0] == b"HV" and threshold_set.get("response") == "hv_threshold":
+                    self.poutput(f"It was possible to set the threshold for the following channels: {response_threshold.get('result')[0]}. \n It was not possible to set the voltage for the following channels: {response_threshold.get('result')[1]}")
+                    
+            except json.JSONDecodeError:
+                self.poutput("Failed to decode the response.")
+
+    
+
+
+
+    hv_threshold_set = argparse.ArgumentParser()
+    hv_threshold_set.add_argument("channels", type=str, help="The channels intended to be configured")
+    hv_threshold_set.add_argument("limit_voltage", type=int, help="The voltage limit to set")
+    hv_threshold_set.add_argument("--port", type=str, default="/dev/ttyPS1", help="The serial port used to communicate with the board")
+
+
+    @cmd2.with_argparser(hv_set_voltage_set)
+    @cmd2.with_category("HV")
+    def do_set_limitV(self, args: argparse.Namespace) -> None:
+        "Function to set the limit voltage to the HV boards for the channels selected"
+
+
+        if self._check_client("HV"):
+            command_hv_limitV = {
+
+                "type" : "hv_command",
+                "command" : "set_limitV",
+                "port": args.port,
+                "channel" : args.channels,
+                "threshold" : args.limit_voltage
+            }
+
+            self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_hv_limitV).encode("utf-8")])
+
+            limitV = self.client_socket.recv_multipart()
+
+            try:
+                response_limitV = json.loads(limitV[1].decode("utf-8"))
+                if limitV[0] == b"HV" and limitV.get("response") == "hv_voltage_limit":
+                    self.poutput(f"It was possible to set the threshold for the following channels: {response_limitV.get('result')[0]}. \n It was not possible to set the voltage for the following channels: {response_limitV.get('result')[1]}")
+                    
+            except json.JSONDecodeError:
+                self.poutput("Failed to decode the response.")
+
+
+    
+
+
+
+    hv_threshold_set = argparse.ArgumentParser()
+    hv_threshold_set.add_argument("channels", type=str, help="The channels intended to be configured")
+    hv_threshold_set.add_argument("limit_current", type=int, help="The current limit to set")
+    hv_threshold_set.add_argument("--port", type=str, default="/dev/ttyPS1", help="The serial port used to communicate with the board")
+
+
+    @cmd2.with_argparser(hv_set_voltage_set)
+    @cmd2.with_category("HV")
+    def do_set_limitI(self, args: argparse.Namespace) -> None:
+        "Function to set the limit current to the HV boards for the channels selected"
+
+
+        if self._check_client("HV"):
+            command_hv_limitI = {
+
+                "type" : "hv_command",
+                "command" : "set_limitI",
+                "port": args.port,
+                "channel" : args.channels,
+                "threshold" : args.limit_current
+            }
+
+            self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_hv_limitI).encode("utf-8")])
+
+            limitI = self.client_socket.recv_multipart()
+
+            try:
+                response_limitI = json.loads(limitI[1].decode("utf-8"))
+                if limitI[0] == b"HV" and limitI.get("response") == "hv_current_limit":
+                    self.poutput(f"It was possible to set the threshold for the following channels: {response_limitI.get('result')[0]}. \n It was not possible to set the voltage for the following channels: {response_limitI.get('result')[1]}")
+                    
+            except json.JSONDecodeError:
+                self.poutput("Failed to decode the response.")
+
+
+    
+
+
+
+    hv_threshold_set = argparse.ArgumentParser()
+    hv_threshold_set.add_argument("channels", type=str, help="The channels intended to be configured")
+    hv_threshold_set.add_argument("limit_trip", type=int, help="The trip time limit to set")
+    hv_threshold_set.add_argument("--port", type=str, default="/dev/ttyPS1", help="The serial port used to communicate with the board")
+
+
+    @cmd2.with_argparser(hv_set_voltage_set)
+    @cmd2.with_category("HV")
+    def do_set_limitTrip(self, args: argparse.Namespace) -> None:
+        "Function to set the trip time to the HV boards for the channels selected"
+
+
+        if self._check_client("HV"):
+            command_hv_limitTrip = {
+
+                "type" : "hv_command",
+                "command" : "set_limitTrip",
+                "port": args.port,
+                "channel" : args.channels,
+                "threshold" : args.limit_trip
+            }
+
+            self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_hv_limitTrip).encode("utf-8")])
+
+            limitTrip = self.client_socket.recv_multipart()
+
+            try:
+                response_limitTrip = json.loads(limitTrip[1].decode("utf-8"))
+                if limitTrip[0] == b"HV" and limitTrip.get("response") == "hv_triptime_limit":
+                    self.poutput(f"It was possible to set the threshold for the following channels: {response_limitTrip.get('result')[0]}. \n It was not possible to set the voltage for the following channels: {response_limitTrip.get('result')[1]}")
+                    
+            except json.JSONDecodeError:
+                self.poutput("Failed to decode the response.")
 
 
 
