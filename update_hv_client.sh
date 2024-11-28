@@ -1,4 +1,4 @@
-SERVICE_NAME="/etc/systemd/system/client_hv.service"
+SERVICE_NAME="client_hv.service"
 
 echo "Stopping the service…"
 systemctl stop "$SERVICE_NAME"
