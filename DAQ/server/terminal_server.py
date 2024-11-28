@@ -535,10 +535,44 @@ class ServerTerminal(cmd2.Cmd):
 
             try:
                 response_on = json.loads(hv_on[1].decode("utf-8"))
-                if hv_on[0] == b"HV" and response_on.get("result") == "hv_power_on":
+                if hv_on[0] == b"HV" and response_on.get("result"):
                     self.poutput(f"It was possible to power on all the channels selected")
                 else:
                     self.poutput(f"It was possible to power on all the channels selected")
+
+            except json.JSONDecodeError:
+                self.poutput("Failed to decode the response.")
+
+    
+    hv_off = argparse.ArgumentParser()
+    hv_off.add_argument("channels", type=str, help="The channels intended to be configured")
+    hv_off.add_argument("--port", type=str, default="/dev/ttyPS1", help="The serial port used to communicate with the board")
+
+    @cmd2.with_argparser(hv_off)
+    @cmd2.with_category("HV")
+    def do_off(self, args: argparse.Namespace) -> None:
+        "Function to power off all or selected channels"
+
+        if self._check_client("HV"):
+            command_hv_off = {
+
+                "type" : "hv_command",
+                "command" : "set_power_off",
+                "port" : args.port,
+                "channel" : args.channels
+
+            }
+
+            self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_hv_off).encode("utf-8")])
+
+            hv_off = self.client_socket.recv_multipart()
+
+            try:
+                response_off = json.loads(hv_off[1].decode("utf-8"))
+                if hv_off[0] == b"HV" and response_off.get("result"):
+                    self.poutput(f"It was possible to power off all the channels selected")
+                else:
+                    self.poutput(f"It was possible to power off all the channels selected")
                     
             except json.JSONDecodeError:
                 self.poutput("Failed to decode the response.")
