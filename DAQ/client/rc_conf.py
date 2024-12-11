@@ -143,3 +143,42 @@ class RC:
         except Exception as e:
             print(f"During the initialisation of the Run Control something went wrong : {e}")
             return (False, None)
+        
+
+        
+    def reg_monitoring(self, regs, channels):
+        """Function to monitor the values of a general number of registers.
+        """
+
+        try:
+            rc_list = [int(x) for x in regs.split(",")]
+        except ValueError:
+            print('E: failed to parse --reg - should be comma-separated list of integers')
+            return None
+        
+
+        if channels == "all":
+            channel_list = range(1, 8)
+        else:
+            try:
+                channel_list = [int(x) for x in channels.split(",")]
+            except ValueError:
+                print("E: Failed to parse `channels` - it should be 'all' or a comma-separated list of integers.")
+                return None
+
+
+        channel_reg = {}
+
+
+        for channel in channel_list:
+            reg_value = {}
+            for reg in rc_list:
+                reg_value[reg] = self.read(reg)
+
+            channel_reg[channel] = reg_value
+        
+        return channel_reg
+
+        
+
+

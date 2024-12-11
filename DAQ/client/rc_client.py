@@ -154,6 +154,30 @@ def handle_commands(socket):
 
                 }
                 send_json(socket, pwr_on_f)
+        
+        if command == "rc_mon":
+            channel = server_command.get("channels")
+            register = server_command.get("registers")
+
+            result = rc.reg_monitoring(register, channel)
+
+            if result == None:
+                mon_none = {
+
+                    "response" : "rc_monitoring",
+                    "result" : f"It was not possible to monitor the registers selected for the specified channels"
+
+                }
+                send_json(socket, mon_none)
+            
+            else:
+                mon = {
+                    "response" : "rc_monitoring",
+                    "result" : f"This is the result of the monitoring: \n {result}"
+
+                }
+                send_json(socket, mon)
+            
 
             
 

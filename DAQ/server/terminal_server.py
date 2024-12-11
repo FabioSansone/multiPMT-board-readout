@@ -3,6 +3,19 @@ import argparse
 import zmq
 import json
 import time
+import functools
+import sys
+import csv
+from cmd2.table_creator import (
+    Column,
+    SimpleTable,
+    HorizontalAlignment
+)
+
+from typing import (
+    List,
+)
+
 
 dict_client_port = {
 
@@ -28,6 +41,32 @@ class ServerTerminal(cmd2.Cmd):
 
     def __init__(self,) -> None:
         super().__init__()
+
+
+    bright_black = functools.partial(cmd2.ansi.style, fg=cmd2.ansi.fg.bright_black)
+    bright_yellow = functools.partial(cmd2.ansi.style, fg=cmd2.ansi.fg.bright_yellow)
+    bright_green = functools.partial(cmd2.ansi.style, fg=cmd2.ansi.fg.bright_green)
+    bright_red = functools.partial(cmd2.ansi.style, fg=cmd2.ansi.fg.bright_red)
+    bright_cyan= functools.partial(cmd2.ansi.style, fg=cmd2.ansi.fg.bright_cyan)
+    bright_blue = functools.partial(cmd2.ansi.style, fg=cmd2.ansi.fg.bright_blue)
+    yellow = functools.partial(cmd2.ansi.style, fg=cmd2.ansi.fg.yellow)
+    blue = functools.partial(cmd2.ansi.style, fg=cmd2.ansi.fg.bright_blue)
+    alarm_red = functools.partial(cmd2.ansi.style, fg=cmd2.ansi.fg.bright_white, bg=cmd2.ansi.bg.bright_red)
+
+
+    columns: List[Column] = list()
+    columns.append(Column("", width=2))
+    columns.append(Column("", width=6, data_horiz_align=HorizontalAlignment.CENTER))
+    columns.append(Column("", width=5, data_horiz_align=HorizontalAlignment.RIGHT))
+    columns.append(Column("", width=9, data_horiz_align=HorizontalAlignment.RIGHT))
+    columns.append(Column("", width=7, data_horiz_align=HorizontalAlignment.RIGHT))
+    columns.append(Column("", width=7, data_horiz_align=HorizontalAlignment.RIGHT))
+    columns.append(Column("", width=12, data_horiz_align=HorizontalAlignment.RIGHT))
+    columns.append(Column("", width=20, data_horiz_align=HorizontalAlignment.RIGHT))
+    columns.append(Column("", width=13, data_horiz_align=HorizontalAlignment.RIGHT))
+    columns.append(Column("", width=14, data_horiz_align=HorizontalAlignment.CENTER))
+
+    st = SimpleTable(columns, divider_char=None)
 
 
     client_parser = argparse.ArgumentParser()
@@ -99,6 +138,13 @@ class ServerTerminal(cmd2.Cmd):
 
 
 
+    cmd2.categorize(
+         (cmd2.Cmd.do_alias, cmd2.Cmd.do_help, cmd2.Cmd.do_history, cmd2.Cmd.do_quit, cmd2.Cmd.do_set, cmd2.Cmd.do_run_script),
+         "General commands" 
+      )
+
+
+
     def _check_client(self, required_client):
         """
         Utility method to ensure the command is used in the correct client page.
@@ -108,6 +154,83 @@ class ServerTerminal(cmd2.Cmd):
             return False
         return True
     
+
+
+    
+    def ansi_print(self, text):
+        cmd2.ansi.style_aware_write(sys.stdout, text + '\n')
+
+
+
+
+    def printMonitorHeader(self):
+      self.ansi_print(self.bright_cyan(self.st.generate_data_row(['Channel'])))
+      self.ansi_print(self.bright_blue(self.st.generate_data_row(['','','Register Address','','Register value (int)','','Register value (hex)',''])))
+      
+
+
+    def printMonitorData(self, channel_reg):
+        """
+        Stampa i dati monitorati dei registri per ciascun canale.
+        channel_reg: dict
+            Dizionario con i canali come chiavi e i registri come valori. Es:
+            {
+                1: {101: 1234, 102: 5678},
+                2: {201: 4321, 202: 8765}
+            }
+        """
+        
+        self.printMonitorHeader()
+
+        
+        for channel, registers in channel_reg.items():
+            
+            self.ansi_print(self.bright_cyan(self.st.generate_data_row([f"Channel: {channel}" + "\n"])))
+
+            
+            for reg_address, reg_hex, reg_int in registers.items():
+                row = [
+                    '', '',  
+                    str(reg_address), '',  
+                    str(reg_hex), '',  
+                    str(reg_int), '',  
+                ]
+                self.ansi_print(self.bright_green(self.st.generate_data_row(row)))
+    
+
+    
+
+    def saveMonitorDataToCSV(self, channel_reg, file_name):
+        """
+        Salva i dati monitorati dei registri in un file CSV.
+        
+        :param channel_reg: dict
+            Dizionario con i canali come chiavi e i registri come valori. Es:
+            {
+                1: {101: 1234, 102: 5678},
+                2: {201: 4321, 202: 8765}
+            }
+        :param file_name: str
+            Nome del file CSV in cui salvare i dati.
+        """
+        try:
+            with open(file_name, mode='w', newline='') as csv_file:
+                writer = csv.writer(csv_file)
+
+            
+                writer.writerow(['Channel', 'Register Address', 'Register Value (int)', 'Register Value (hex)'])
+
+                
+                for channel, registers in channel_reg.items():
+                    for reg_address, reg_hex, reg_int in registers.items():
+                        writer.writerow([channel, reg_address, reg_hex, reg_int])
+
+            print(f"Monitor data successfully saved to {file_name}")
+
+        except IOError as e:
+            print(f"Error writing to CSV file {file_name}: {e}")
+
+
 
     
     @cmd2.with_category("Clients Selection")
@@ -263,6 +386,70 @@ class ServerTerminal(cmd2.Cmd):
                     
             except json.JSONDecodeError:
                 self.poutput("Failed to decode the response.")
+    
+
+
+
+    rc_mon = argparse.ArgumentParser()
+    rc_mon.add_argument("channels", type=str, help="Write all to monitor all channels or the respectivly channel numbers")
+    rc_mon.add_argument("registers", type=str, help="Choose the registers of the Run Control to monitor")
+    rc_mon.add_argument("seconds", type=int, help="Number of seconds")
+    rc_mon.add_argument("flag_terminal", type=int, help="Select 1 if you want to display the monitoring on the terminal otherwise select 0")
+    rc_mon.add_argument("flag_file", type=int, help="Select 1 if you want to save the data on a file otherwise select 0")
+    rc_mon.add_argument("file_name", type=str, help="The file name")
+
+    def do_rc_mon(self, args: argparse.Namespace) -> None:
+        """Function to monitor specific register of the Run Control for the channels selected"""
+
+        if self._check_client("RC"):
+            command_rc_mon = {
+
+                "type" : "rc_command",
+                "command" : "rc_mon",
+                "channels" : args.channels,
+                "registers" : args.registers
+            }
+
+            self.client_socket.send_multipart([self.client.encode("utf-8"), json.dumps(command_rc_mon).encode("utf-8")])
+
+            monitor = self.client_socket.recv_multipart()
+
+            try:
+                response_mon = json.loads(monitor[1].decode("utf-8"))
+                if monitor[0] == b"RC" and response_mon.get("response") == "rc_monitoring":
+                    
+                    i = 0
+                    
+                    if args.flag_terminal == 1 and args.flag_file == 0:  
+                        while i < args.seconds:       
+                            self.printMonitorData(response_mon)
+                            if (args.seconds > 1):
+                                time.sleep(0.5)
+                            i += 1
+                    elif args.flag_terminal == 1 and args.flag_file == 1:
+                        while i < args.seconds:
+                            self.printMonitorData(response_mon)
+                            self.saveMonitorDataToCSV(response_mon, args.file_name)
+                            if (args.seconds > 1):
+                                time.sleep(0.5)
+                            i += 1
+                        
+
+                    elif args.flag_terminal == 0 and args.flag_file == 1:
+                        while i < args.seconds:
+                            self.saveMonitorDataToCSV(response_mon, args.file_name)
+                            if (args.seconds > 1):
+                                time.sleep(0.5)
+                            i += 1
+                        
+
+                        
+                    else:
+                        print("At least one method to check for the monitoring has to be setted")
+                    
+            except json.JSONDecodeError:
+                self.poutput("Failed to decode the response.")
+
 
 
 
